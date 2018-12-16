@@ -1,0 +1,27 @@
+clear
+clc
+token = 'f9b57c06fc...................';
+api = pro_api(token);
+data = pro_bar('000001.SZ', api, '20130101', '', 'D', 'E', '', 'qfq', [5, 10, 60]);
+data = sortrows(data,'trade_date','ascend');
+tradeTime=data.trade_date;
+closePrice=data.close;
+year=zeros(length(tradeTime),1);
+month=zeros(length(tradeTime),1);
+day=zeros(length(tradeTime),1);
+for i=1:length(tradeTime)
+    year(i,:)=str2double(tradeTime{i}(1:4));
+    month(i,:)=str2double(tradeTime{i}(5:6));
+    day(i,:)=str2double(tradeTime{i}(7:8));
+end
+newTradeTime=table(datetime(year,month,day));
+usingData=table2timetable([newTradeTime,data(:,3),data(:,4),data(:,5),data(:,6),data(:,10)]);
+
+[middle,upper,lower]= bollinger(usingData);
+CloseBolling = [middle.close, upper.close,lower.close];
+figure(1)
+hold on 
+plot(middle.Time,closePrice)
+plot(middle.Time,CloseBolling)
+title('Bollinger Bands for 000001.SZ Closing Prices')
+ID:1018928631@qq.com
